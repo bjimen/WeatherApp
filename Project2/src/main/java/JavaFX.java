@@ -1,20 +1,14 @@
 import javafx.application.Application;
-import java.io.File;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.HPos;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
 
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import weather.Period;
@@ -24,9 +18,9 @@ import java.util.ArrayList;
 public class JavaFX extends Application {
 	Scene mainPage, threeDayForecast;
 	BorderPane bpMainPage, bpForecast;
-	GridPane gpMainPage, gpForecast;
+	GridPane gpForecast;
 	StackPane spDayBlock1, spDayBlock2, spDayBlock3;
-	VBox vbDayBlock1, vbDayBlock2, vbDayBlock3;
+	VBox vbMainPage, vbDayBlock1, vbDayBlock2, vbDayBlock3;
 	Text shortDesc, temperature, day1, day2, day3, dayTemp1, nightTemp1, dayTemp2, nightTemp2, dayTemp3, nightTemp3, dayWindSpeed1, nightWindSpeed1, dayWindSpeed2, nightWindSpeed2, dayWindSpeed3, nightWindSpeed3, dayWindDir1, nightWindDir1, dayWindDir2, nightWindDir2, dayWindDir3, nightWindDir3;
 	Button btForecast, btBack;
 	Image imWeatherIcon, imDayBlock;
@@ -45,7 +39,17 @@ public class JavaFX extends Application {
 			throw new RuntimeException("Forecast did not load");
 		}
 
-		// Main Page
+		String time;
+		int periodIdx;
+		if (forecast.get(0).isDaytime) {
+			time = "day";
+			periodIdx = 2;
+		} else {
+			time = "night";
+			periodIdx = 1;
+		}
+
+		/// Main Page
 		shortDesc = new Text();
 		temperature = new Text();
 		shortDesc.setText(forecast.get(0).shortForecast);
@@ -53,80 +57,55 @@ public class JavaFX extends Application {
 		shortDesc.setStyle("-fx-font-size: 18");
 		temperature.setStyle("-fx-font-size: 30");
 
-		imWeatherIcon = new Image("C:\\Users\\bjime\\OneDrive\\Desktop\\UIC\\CS 342\\Project 2\\Project 2\\Project2\\src\\main\\java\\assets\\tempIcon.jpg");
+		String icon = parseIcon(forecast.get(0).icon);
+		try {
+			imWeatherIcon = new Image(icon + ".png");
+		} catch (RuntimeException e) {
+			imWeatherIcon = new Image(forecast.get(0).icon);
+		}
 		ivWeatherIcon = new ImageView(imWeatherIcon);
 
 		btForecast = new Button("3-Day Forecast");
 		btForecast.setOnAction(e->{primaryStage.setScene(threeDayForecast);});
 
-		gpMainPage = new GridPane();
-		gpMainPage.add(shortDesc, 1, 0);
-		gpMainPage.setHalignment(shortDesc, HPos.CENTER);
-		gpMainPage.add(ivWeatherIcon, 1, 1);
-		gpMainPage.setHalignment(ivWeatherIcon, HPos.CENTER);
-		gpMainPage.add(temperature, 1, 2);
-		gpMainPage.setHalignment(temperature, HPos.CENTER);
-		gpMainPage.add(btForecast, 2, 3);
-		gpMainPage.setHalignment(btForecast, HPos.RIGHT);
-		gpMainPage.setValignment(btForecast, VPos.BOTTOM);
-		gpMainPage.setVgap(15);
-		gpMainPage.setHgap(100);
-		gpMainPage.setAlignment(Pos.CENTER);
+		vbMainPage = new VBox(5, shortDesc, ivWeatherIcon, temperature);
+		vbMainPage.setAlignment(Pos.CENTER);
 
 		bpMainPage = new BorderPane();
-		bpMainPage.setPadding(new Insets(50));
-		bpMainPage.setCenter(gpMainPage);
+		bpMainPage.setPadding(new Insets(37.5));
+		bpMainPage.setCenter(vbMainPage);
+		bpMainPage.setBottom(btForecast);
+		bpMainPage.setAlignment(btForecast, Pos.BOTTOM_RIGHT);
+		bpMainPage.setBackground(new Background(new BackgroundImage(new Image(time + "/bg.jpg"), BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
 
-		// 3-Day Forecast
-		day1 = new Text();
-		day2 = new Text();
-		day3 = new Text();
-		dayTemp1 = new Text();
-		nightTemp1 = new Text();
-		dayTemp2 = new Text();
-		nightTemp2 = new Text();
-		dayTemp3 = new Text();
-		nightTemp3 = new Text();
-		dayWindSpeed1 = new Text();
-		nightWindSpeed1 = new Text();
-		dayWindSpeed2 = new Text();
-		nightWindSpeed2 = new Text();
-		dayWindSpeed3 = new Text();
-		nightWindSpeed3 = new Text();
-		dayWindDir1 = new Text();
-		nightWindDir1 = new Text();
-		dayWindDir2 = new Text();
-		nightWindDir2 = new Text();
-		dayWindDir3 = new Text();
-		nightWindDir3 = new Text();
-
-		day1.setText(forecast.get(0).name);
-		day2.setText(forecast.get(2).name);
-		day3.setText(forecast.get(4).name);
-		dayTemp1.setText(String.valueOf(forecast.get(0).temperature) + "°F");
-		nightTemp1.setText(String.valueOf(forecast.get(1).temperature) + "°F");
-		dayTemp2.setText(String.valueOf(forecast.get(2).temperature) + "°F");
-		nightTemp2.setText(String.valueOf(forecast.get(3).temperature) + "°F");
-		dayTemp3.setText(String.valueOf(forecast.get(4).temperature) + "°F");
-		nightTemp3.setText(String.valueOf(forecast.get(5).temperature) + "°F");
-		dayWindSpeed1.setText(forecast.get(0).windSpeed);
-		nightWindSpeed1.setText(forecast.get(1).windSpeed);
-		dayWindSpeed2.setText(forecast.get(2).windSpeed);
-		nightWindSpeed2.setText(forecast.get(3).windSpeed);
-		dayWindSpeed3.setText(forecast.get(4).windSpeed);
-		nightWindSpeed3.setText(forecast.get(5).windSpeed);
-		dayWindDir1.setText(forecast.get(0).windDirection);
-		nightWindDir1.setText(forecast.get(1).windDirection);
-		dayWindDir2.setText(forecast.get(2).windDirection);
-		nightWindDir2.setText(forecast.get(3).windDirection);
-		dayWindDir3.setText(forecast.get(4).windDirection);
-		nightWindDir3.setText(forecast.get(5).windDirection);
+		/// 3-Day Forecast
+		day1 = new Text(forecast.get(periodIdx).name);
+		day2 = new Text(forecast.get(periodIdx+2).name);
+		day3 = new Text(forecast.get(periodIdx+4).name);
+		dayTemp1 = new Text(String.valueOf(forecast.get(periodIdx).temperature) + "°F");
+		nightTemp1 = new Text(String.valueOf(forecast.get(periodIdx+1).temperature) + "°F");
+		dayTemp2 = new Text(String.valueOf(forecast.get(periodIdx+2).temperature) + "°F");
+		nightTemp2 = new Text(String.valueOf(forecast.get(periodIdx+3).temperature) + "°F");
+		dayTemp3 = new Text(String.valueOf(forecast.get(periodIdx+4).temperature) + "°F");
+		nightTemp3 = new Text(String.valueOf(forecast.get(periodIdx+5).temperature) + "°F");
+		dayWindSpeed1 = new Text("Wind speed: " + forecast.get(periodIdx).windSpeed);
+		nightWindSpeed1 = new Text("Wind speed: " + forecast.get(periodIdx+1).windSpeed);
+		dayWindSpeed2 = new Text("Wind speed: " + forecast.get(periodIdx+2).windSpeed);
+		nightWindSpeed2 = new Text("Wind speed: " + forecast.get(periodIdx+3).windSpeed);
+		dayWindSpeed3 = new Text("Wind speed: " + forecast.get(periodIdx+4).windSpeed);
+		nightWindSpeed3 = new Text("Wind speed: " + forecast.get(periodIdx+5).windSpeed);
+		dayWindDir1 = new Text("Wind direction: " + forecast.get(periodIdx).windDirection);
+		nightWindDir1 = new Text("Wind direction: " + forecast.get(periodIdx+1).windDirection);
+		dayWindDir2 = new Text("Wind direction: " + forecast.get(periodIdx+2).windDirection);
+		nightWindDir2 = new Text("Wind direction: " + forecast.get(periodIdx+3).windDirection);
+		dayWindDir3 = new Text("Wind direction: " + forecast.get(periodIdx+4).windDirection);
+		nightWindDir3 = new Text("Wind direction: " + forecast.get(periodIdx+5).windDirection);
 
 		day1.setStyle("-fx-font-size: 15");
 		day2.setStyle("-fx-font-size: 15");
 		day3.setStyle("-fx-font-size: 15");
 
-		imDayBlock = new Image("C:\\Users\\bjime\\OneDrive\\Desktop\\UIC\\CS 342\\Project 2\\Project 2\\Project2\\src\\main\\java\\assets\\tempDayBlock.png");
+		imDayBlock = new Image("day_block.png");
 		ivDayBlock1 = new ImageView(imDayBlock);
 		ivDayBlock2 = new ImageView(imDayBlock);
 		ivDayBlock3 = new ImageView(imDayBlock);
@@ -137,6 +116,9 @@ public class JavaFX extends Application {
 		vbDayBlock1 = new VBox(15, dayTemp1, dayWindSpeed1, dayWindDir1, nightTemp1, nightWindSpeed1, nightWindDir1);
 		vbDayBlock2 = new VBox(15, dayTemp2, dayWindSpeed2, dayWindDir2, nightTemp2, nightWindSpeed2, nightWindDir2);
 		vbDayBlock3 = new VBox(15, dayTemp3, dayWindSpeed3, dayWindDir3, nightTemp3, nightWindSpeed3, nightWindDir3);
+		vbDayBlock1.setPadding(new Insets(10));
+		vbDayBlock2.setPadding(new Insets(10));
+		vbDayBlock3.setPadding(new Insets(10));
 
 		spDayBlock1 = new StackPane();
 		spDayBlock2 = new StackPane();
@@ -153,19 +135,18 @@ public class JavaFX extends Application {
 		gpForecast.add(day3, 2, 0);
 		gpForecast.setHalignment(day3, HPos.CENTER);
 		gpForecast.add(spDayBlock1, 0, 1);
-		gpForecast.setHalignment(spDayBlock1, HPos.CENTER);
 		gpForecast.add(spDayBlock2, 1, 1);
-		gpForecast.setHalignment(spDayBlock2, HPos.CENTER);
 		gpForecast.add(spDayBlock3, 2, 1);
-		gpForecast.setHalignment(spDayBlock3, HPos.CENTER);
-		gpForecast.add(btBack, 2, 2);
-		gpForecast.setHalignment(btBack, HPos.RIGHT);
-		gpForecast.setVgap(15);
+		gpForecast.setAlignment(Pos.CENTER);
+		gpForecast.setVgap(10);
 		gpForecast.setHgap(15);
 
 		bpForecast = new BorderPane();
 		bpForecast.setPadding(new Insets(37.5));
 		bpForecast.setCenter(gpForecast);
+		bpForecast.setBottom(btBack);
+		bpForecast.setAlignment(btBack, Pos.BOTTOM_RIGHT);
+		bpForecast.setBackground(new Background(new BackgroundImage(new Image(time + "/bg.jpg"), BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT, BackgroundPosition.DEFAULT, BackgroundSize.DEFAULT)));
 
 		threeDayForecast = new Scene(bpForecast, 800, 450);
 
@@ -174,4 +155,17 @@ public class JavaFX extends Application {
 		primaryStage.setScene(mainPage);
 		primaryStage.show();
 	}
+
+	private String parseIcon(String iconLink) {
+		String icon = "";
+		int startIdx = iconLink.indexOf("land/") + 5;
+		for (int i = startIdx; i < iconLink.length(); i++) {
+			if (iconLink.charAt(i) == '?' || iconLink.charAt(i) == ',') {
+				break;
+			}
+			icon += iconLink.charAt(i);
+		}
+		return icon;
+	}
 }
+
